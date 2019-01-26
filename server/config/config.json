@@ -1,0 +1,14 @@
+{
+  "development": {
+    "use_env_variable": "POSTGRES_DATABASE_URL",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "postgres",
+    "password": "postgres",
+    "database": "employee-statistics-test",
+    "host": "127.0.0.1",
+    "port": 5433,
+    "dialect": "postgres"
+  }
+}

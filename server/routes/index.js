@@ -6,4 +6,8 @@ module.exports = (app) => {
   }));
 
   app.post('/api/employees', employeesContoller.create);
+
+  app.get('/api/employees', employeesContoller.list);
+
+  app.get('/api/employees/:id', employeesContoller.getEmployeeById);
 };

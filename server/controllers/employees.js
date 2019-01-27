@@ -30,7 +30,7 @@ const create = async (req, res) => {
 const list = async (req, res) => {
   try {
     const employees = await Employee.findAll({});
-    res.status(200).send(employees);
+    res.status(200).send({ employees });
   } catch (err) {
     res.status(400);
   }

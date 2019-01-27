@@ -1,4 +1,3 @@
-'use strict';
 module.exports = (sequelize, DataTypes) => {
   const Role = sequelize.define('Role', {
     title: {
@@ -15,10 +14,10 @@ module.exports = (sequelize, DataTypes) => {
     },
   });
 
-  Role.associate = function(models) {
+  Role.associate = (models) => {
     Role.belongsTo(models.Employee, {
       foreignKey: 'employeeId',
-      onDelete: 'CASCADE'
+      onDelete: 'CASCADE',
     });
   };
   return Role;

@@ -10,4 +10,8 @@ module.exports = (app) => {
   app.get('/api/employees', employeesContoller.list);
 
   app.get('/api/employees/:id', employeesContoller.getEmployeeById);
+
+  app.delete('/api/employees/:id', employeesContoller.deleteEmployeeById);
+
+  app.put('/api/employees/:id', employeesContoller.editEmployeeById);
 };

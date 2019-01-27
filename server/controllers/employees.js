@@ -56,8 +56,66 @@ const getEmployeeById = async (req, res) => {
   }
 };
 
+const deleteEmployeeById = async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.sendStatus(404);
+  }
+
+  try {
+    const employee = await Employee.findById(id);
+
+    if (!employee) {
+      return res.sendStatus(404);
+    }
+
+    employee.destroy();
+
+    return res.send({ employee });
+  } catch (err) {
+    return res.sendStatus(400);
+  }
+};
+
+const editEmployeeById = async (req, res) => {
+  const { id } = req.params;
+
+  const {
+    firstName,
+    lastName,
+    department,
+    nationality,
+  } = req.body;
+
+  if (!id) {
+    return res.sendStatus(404);
+  }
+
+  try {
+    const employee = await Employee.findById(id);
+    employee.update(
+      {
+        firstName: firstName || employee.firstName,
+        lastName: lastName || employee.lastName,
+        department: department || employee.department,
+        nationality: nationality || employee.nationality,
+      },
+      {
+        returning: true,
+      },
+    );
+
+    return res.send({ employee });
+  } catch (err) {
+    return res.sendStatus(400);
+  }
+};
+
 module.exports = {
   create,
   list,
   getEmployeeById,
+  deleteEmployeeById,
+  editEmployeeById,
 };

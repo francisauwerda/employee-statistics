@@ -1,4 +1,4 @@
-// Route Handler.
+// Employees Route Handler.
 const { Employee } = require('../models');
 
 const create = async (req, res) => {
@@ -21,7 +21,7 @@ const create = async (req, res) => {
       nationality,
     });
 
-    return res.status(201).send(employee);
+    return res.status(201).send({ employee });
   } catch (err) {
     return res.status(400);
   }

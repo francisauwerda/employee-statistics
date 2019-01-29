@@ -104,54 +104,37 @@ describe.only('/api/roles', () => {
   });
 
   describe('GET /api/roles', () => {
-    it('should get all roles', (done) => {
-      request(app)
-        .get('/api/roles')
-        .expect(200)
-        .expect((res) => {
-          expect(res.body.roles.length).toBe(2);
-        })
-        .end(done);
+    it('should get all roles', async () => {
+      const res = await request(app).get('/api/roles');
+      expect(res.statusCode).toBe(200);
+      expect(res.body.roles.length).toBe(2);
     });
 
-    it('should create a role for a user', (done) => {
+    it('should create a role for a user', async () => {
       const body = {
         title: 'Some new role',
         description: 'Some new description',
         durationInWeeks: 2,
       };
-
-      Employee.findOne()
-        .then((employee) => {
-          request(app)
-            .post('/api/roles')
-            .send({
-              ...body,
-              employeeId: employee.id,
-            })
-            .expect(201)
-            .expect((res) => {
-              expect(res.body.role.title).toBe(body.title);
-            })
-            .end((err) => {
-              if (err) {
-                return done(err);
-              }
-
-              return Role
-                .findAll({
-                  where: {
-                    title: body.title,
-                  },
-                })
-                .then((roles) => {
-                  expect(roles.length).toBe(1);
-                  expect(roles[0].description).toBe(body.description);
-                  done();
-                })
-                .catch(e => done(e));
-            });
+      const employee = await Employee.findOne();
+      const res = await request(app)
+        .post('/api/roles')
+        .send({
+          ...body,
+          employeeId: employee.id,
         });
+
+      expect(res.statusCode).toBe(201);
+      expect(res.body.role.title).toBe(body.title);
+
+      const roles = await Role.findAll({
+        where: {
+          title: body.title,
+        },
+      });
+
+      expect(roles.length).toBe(1);
+      expect(roles[0].description).toBe(body.description);
     });
   });
 });

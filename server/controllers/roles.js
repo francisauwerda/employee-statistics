@@ -48,6 +48,12 @@ const list = async (req, res) => {
   }
 };
 
+const getRoleById = async (req, res) => {
+  const { id } = req.params;
+
+  return res.sendStatus(500);
+};
+
 const deleteRoleById = async (req, res) => {
   const { id } = req.params;
 
@@ -70,8 +76,16 @@ const deleteRoleById = async (req, res) => {
   }
 };
 
+const editRoleById = async (req, res) => {
+  const { id } = req.params;
+
+  return res.sendStatus(500);
+};
+
 module.exports = {
   create,
   list,
+  getRoleById,
   deleteRoleById,
+  editRoleById,
 };

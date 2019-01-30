@@ -16,5 +16,7 @@ module.exports = (app) => {
   // Role Routes
   app.post('/api/roles', rolesController.create);
   app.get('/api/roles', rolesController.list);
+  app.get('/api/roles/:id', rolesController.getRoleById);
   app.delete('/api/roles/:id', rolesController.deleteRoleById);
+  app.patch('/api/roles/:id', rolesController.editRoleById);
 };

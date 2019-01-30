@@ -29,12 +29,12 @@ const initialTestRoles = [{
 
 const generateRandomId = () => Math.floor((Math.random() * 10000) + 1);
 
-const findNonExistantEmployeeId = async () => {
+const findNonExistantModelId = async (model) => {
   const id = generateRandomId();
-  const employee = await Employee.findAll({ where: { id } });
+  const employee = await model.findAll({ where: { id } });
 
   if (employee.length) {
-    return findNonExistantEmployeeId();
+    return findNonExistantModelId(model);
   }
 
   return id;
@@ -124,7 +124,31 @@ describe('/api/roles', () => {
     });
   });
 
-  describe.only('POST /api/roles', () => {
+  describe('GET /api/roles/:id', () => {
+    it('should return a role by given ID', async () => {
+      const role = Role.findOne();
+      const res = await request(app).get(`/api/roles/${role.id}`);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.role).toBeDefined();
+    });
+
+    it('should return 404 if role not found', async () => {
+      const nonExistantRoleId = await findNonExistantModelId(Role);
+      const res = await request(app).get(`/api/roles/${nonExistantRoleId}`);
+
+      expect(res.statusCode).toBe(404);
+    });
+
+    it('should return 404 if id invalid', async () => {
+      const invalidRoleId = 'abc123';
+      const res = await request(app).get(`/api/roles/${invalidRoleId}`);
+
+      expect(res.statusCode).toBe(404);
+    });
+  });
+
+  describe('POST /api/roles', () => {
     it('should create a role for a user', async () => {
       const body = {
         title: 'Some new role',
@@ -153,13 +177,13 @@ describe('/api/roles', () => {
     });
 
     it('should throw an error if no associated user can be found', async () => {
-      const employeeId = await findNonExistantEmployeeId();
+      const nonExistantEmployeeId = await findNonExistantModelId(Employee);
 
       const body = {
         title: 'Invalid Role',
         description: 'Non existant employeeId was associated',
         durationInWeeks: 2,
-        employeeId,
+        employeeId: nonExistantEmployeeId,
       };
 
       const res = await request(app)
@@ -172,15 +196,11 @@ describe('/api/roles', () => {
   });
 
   describe('DELETE /api/roles/:id', () => {
-    it('should throw an error if the role doesn\'t exist', async () => {
-      const randomRole = Role.findOne();
+    it('should return 404 if role not found', async () => {
+      const nonExistantRoleId = await findNonExistantModelId(Role);
+      const res = await request(app).delete(`/api/roles/${nonExistantRoleId}`);
 
-      try {
-        await request(app).delete(`/api/roles/${randomRole.id}`);
-        await request(app).delete(`/api/roles/${randomRole.id}`);
-      } catch (err) {
-        console.log('AHHHHHH', err);
-      }
+      expect(res.statusCode).toBe(404);
     });
 
     it('should delete a role', async () => {
@@ -198,6 +218,30 @@ describe('/api/roles', () => {
       });
 
       expect(noRoles.length).toBe(0);
+    });
+  });
+
+  describe('PATCH /api/roles/:id', () => {
+    it('should return 404 if role not found', async () => {
+      const nonExistantRoleId = await findNonExistantModelId(Role);
+      const res = await request(app).patch(`/api/roles/${nonExistantRoleId}`);
+
+      expect(res.statusCode).toBe(404);
+    });
+
+    it('should edit one role', async () => {
+      const role = await Role.findOne();
+      const body = {
+        ...role,
+        title: `${role.title} edited title`,
+      };
+
+      const res = await request(app)
+        .patch(`/api/roles/${role.id}`)
+        .send(body);
+
+      expect(res.body.role.title).toBe(body.title);
+      expect(res.body.role.title).toNotBe(role.title);
     });
   });
 });

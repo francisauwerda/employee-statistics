@@ -27,6 +27,19 @@ const initialTestRoles = [{
   durationInWeeks: 1,
 }];
 
+const generateRandomId = () => Math.floor((Math.random() * 10000) + 1);
+
+const findNonExistantEmployeeId = async () => {
+  const id = generateRandomId();
+  const employee = await Employee.findAll({ where: { id } });
+
+  if (employee.length) {
+    return findNonExistantEmployeeId();
+  }
+
+  return id;
+};
+
 describe('/api/employees', () => {
   beforeEach((done) => {
     Employee
@@ -85,7 +98,7 @@ describe('/api/employees', () => {
   });
 });
 
-describe.only('/api/roles', () => {
+describe('/api/roles', () => {
   beforeEach((done) => {
     Role
       .destroy({ where: {} })
@@ -109,7 +122,9 @@ describe.only('/api/roles', () => {
       expect(res.statusCode).toBe(200);
       expect(res.body.roles.length).toBe(2);
     });
+  });
 
+  describe.only('POST /api/roles', () => {
     it('should create a role for a user', async () => {
       const body = {
         title: 'Some new role',
@@ -135,6 +150,54 @@ describe.only('/api/roles', () => {
 
       expect(roles.length).toBe(1);
       expect(roles[0].description).toBe(body.description);
+    });
+
+    it('should throw an error if no associated user can be found', async () => {
+      const employeeId = await findNonExistantEmployeeId();
+
+      const body = {
+        title: 'Invalid Role',
+        description: 'Non existant employeeId was associated',
+        durationInWeeks: 2,
+        employeeId,
+      };
+
+      const res = await request(app)
+        .post('/api/roles')
+        .send(body);
+
+      expect(res.statusCode).toBe(403);
+      expect(JSON.parse(res.error.text).message).toBe('No associated employee found');
+    });
+  });
+
+  describe('DELETE /api/roles/:id', () => {
+    it('should throw an error if the role doesn\'t exist', async () => {
+      const randomRole = Role.findOne();
+
+      try {
+        await request(app).delete(`/api/roles/${randomRole.id}`);
+        await request(app).delete(`/api/roles/${randomRole.id}`);
+      } catch (err) {
+        console.log('AHHHHHH', err);
+      }
+    });
+
+    it('should delete a role', async () => {
+      const randomRole = await Role.findOne();
+
+      const res = await request(app).delete(`/api/roles/${randomRole.id}`);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.role.id).toBe(randomRole.id);
+
+      const noRoles = await Role.findAll({
+        where: {
+          id: randomRole.id,
+        },
+      });
+
+      expect(noRoles.length).toBe(0);
     });
   });
 });

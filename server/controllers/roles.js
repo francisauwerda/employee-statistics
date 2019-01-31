@@ -104,9 +104,7 @@ const editRoleById = async (req, res) => {
       return res.sendStatus(404);
     }
 
-    Object.keys(req.body).forEach((field) => { role[field] = req.body[field]; });
-
-    await role.save();
+    await role.update(req.body, { fields: Object.keys(req.body) });
 
     return res.status(200).send({ role });
   } catch (err) {

@@ -1,5 +1,5 @@
 // Employees Route Handler.
-const { Employee } = require('../models');
+const { Employee, Role } = require('../models');
 
 const create = async (req, res) => {
   const {
@@ -29,7 +29,12 @@ const create = async (req, res) => {
 
 const list = async (req, res) => {
   try {
-    const employees = await Employee.findAll({});
+    const employees = await Employee.findAll({
+      include: [{
+        model: Role,
+        as: 'roles',
+      }],
+    });
     res.status(200).send({ employees });
   } catch (err) {
     res.sendStatus(400);
@@ -44,7 +49,12 @@ const getEmployeeById = async (req, res) => {
   }
 
   try {
-    const employee = await Employee.findById(id);
+    const employee = await Employee.findByPk(id, {
+      include: [{
+        model: Role,
+        as: 'roles',
+      }],
+    });
 
     if (!employee) {
       return res.sendStatus(404);
@@ -64,7 +74,7 @@ const deleteEmployeeById = async (req, res) => {
   }
 
   try {
-    const employee = await Employee.findById(id);
+    const employee = await Employee.findByPk(id);
 
     if (!employee) {
       return res.sendStatus(404);
@@ -81,30 +91,18 @@ const deleteEmployeeById = async (req, res) => {
 const editEmployeeById = async (req, res) => {
   const { id } = req.params;
 
-  const {
-    firstName,
-    lastName,
-    department,
-    nationality,
-  } = req.body;
-
   if (!id) {
     return res.sendStatus(404);
   }
 
   try {
     const employee = await Employee.findById(id);
-    employee.update(
-      {
-        firstName: firstName || employee.firstName,
-        lastName: lastName || employee.lastName,
-        department: department || employee.department,
-        nationality: nationality || employee.nationality,
-      },
-      {
-        returning: true,
-      },
-    );
+
+    if (!employee) {
+      return res.sendStatus(404);
+    }
+
+    await employee.update(req.body, { fields: Object.keys(req.body) });
 
     return res.send({ employee });
   } catch (err) {

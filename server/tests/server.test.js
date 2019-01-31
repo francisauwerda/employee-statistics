@@ -1,5 +1,10 @@
 const expect = require('expect');
-const { describe, it, beforeEach } = require('mocha');
+const {
+  describe,
+  it,
+  beforeEach,
+  after,
+} = require('mocha');
 const request = require('supertest');
 
 const app = require('./../../app');
@@ -47,6 +52,13 @@ describe('/api/employees', () => {
       .then(() => Employee.bulkCreate(initialTestEmployees))
       .then(() => done());
   });
+
+  after((done) => {
+    Employee
+      .destroy({ where: {} })
+      .then(() => done());
+  });
+
 
   describe('GET /api/employees', () => {
     it('should get all employees', (done) => {
@@ -96,6 +108,28 @@ describe('/api/employees', () => {
         });
     });
   });
+
+  describe('PUT /api/employees/:id', () => {
+    it('should return 404 if employee not found', async () => {
+      const nonExistantRoleId = await findNonExistantModelId(Employee);
+      const res = await request(app).put(`/api/employees/${nonExistantRoleId}`);
+
+      expect(res.statusCode).toBe(404);
+    });
+
+    it('should edit one employee', async () => {
+      const employee = await Employee.findOne();
+      const body = {
+        firstName: `${employee.firstName} edited firstName`,
+      };
+
+      const res = await request(app)
+        .put(`/api/employees/${employee.id}`)
+        .send(body);
+
+      expect(res.body.employee.firstName).toBe(body.firstName);
+    });
+  });
 });
 
 describe('/api/roles', () => {
@@ -116,6 +150,12 @@ describe('/api/roles', () => {
       .then(() => done());
   });
 
+  after((done) => {
+    Role
+      .destroy({ where: {} })
+      .then(() => done());
+  });
+
   describe('GET /api/roles', () => {
     it('should get all roles', async () => {
       const res = await request(app).get('/api/roles');
@@ -124,7 +164,7 @@ describe('/api/roles', () => {
     });
   });
 
-  describe.only('GET /api/roles/:id', () => {
+  describe('GET /api/roles/:id', () => {
     it('should return a role by given ID', async () => {
       const role = await Role.findOne();
       const res = await request(app).get(`/api/roles/${role.id}`);

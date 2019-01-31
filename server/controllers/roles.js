@@ -51,7 +51,21 @@ const list = async (req, res) => {
 const getRoleById = async (req, res) => {
   const { id } = req.params;
 
-  return res.sendStatus(500);
+  if (!id) {
+    return res.sendStatus(403);
+  }
+
+  try {
+    const role = await Role.findByPk(id);
+
+    if (!role) {
+      return res.sendStatus(404);
+    }
+
+    return res.status(200).send({ role });
+  } catch (err) {
+    return res.sendStatus(400);
+  }
 };
 
 const deleteRoleById = async (req, res) => {
@@ -79,7 +93,25 @@ const deleteRoleById = async (req, res) => {
 const editRoleById = async (req, res) => {
   const { id } = req.params;
 
-  return res.sendStatus(500);
+  if (!id) {
+    return res.sendStatus(403);
+  }
+
+  try {
+    const role = await Role.findByPk(id);
+
+    if (!role) {
+      return res.sendStatus(404);
+    }
+
+    Object.keys(req.body).forEach((field) => { role[field] = req.body[field]; });
+
+    await role.save();
+
+    return res.status(200).send({ role });
+  } catch (err) {
+    return res.sendStatus(400);
+  }
 };
 
 module.exports = {

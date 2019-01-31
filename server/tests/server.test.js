@@ -124,9 +124,9 @@ describe('/api/roles', () => {
     });
   });
 
-  describe('GET /api/roles/:id', () => {
+  describe.only('GET /api/roles/:id', () => {
     it('should return a role by given ID', async () => {
-      const role = Role.findOne();
+      const role = await Role.findOne();
       const res = await request(app).get(`/api/roles/${role.id}`);
 
       expect(res.statusCode).toBe(200);
@@ -140,11 +140,11 @@ describe('/api/roles', () => {
       expect(res.statusCode).toBe(404);
     });
 
-    it('should return 404 if id invalid', async () => {
+    it('should return 400 if id invalid', async () => {
       const invalidRoleId = 'abc123';
       const res = await request(app).get(`/api/roles/${invalidRoleId}`);
 
-      expect(res.statusCode).toBe(404);
+      expect(res.statusCode).toBe(400);
     });
   });
 
@@ -232,7 +232,6 @@ describe('/api/roles', () => {
     it('should edit one role', async () => {
       const role = await Role.findOne();
       const body = {
-        ...role,
         title: `${role.title} edited title`,
       };
 
@@ -241,7 +240,6 @@ describe('/api/roles', () => {
         .send(body);
 
       expect(res.body.role.title).toBe(body.title);
-      expect(res.body.role.title).toNotBe(role.title);
     });
   });
 });

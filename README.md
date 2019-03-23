@@ -6,7 +6,10 @@ This repo was created to get a better understanding of Sequelize.
 I want to store statistics about employees (department, nationality, etc.. ) and create assigned roles (retrospective organiser, sentry ninja, etc..).
 
 ### Details
-A REST interface with two entities; Employee and Role. An ER Diagram can be found [here](./er-diagram.png).
+A REST interface with two entities; Employee and Role. 
+
+ER Diagram
+![er-diagram](./er-diagram.png)
 
 The postgres DB is hosted on ElephantSQL for development/production. A local DB is used for unit tests.
 

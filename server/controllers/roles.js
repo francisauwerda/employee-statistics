@@ -41,7 +41,12 @@ const create = async (req, res) => {
 
 const list = async (req, res) => {
   try {
-    const roles = await Role.findAll({});
+    const roles = await Role.findAll({
+      include: [{
+        model: Employee,
+        as: 'employee',
+      }],
+    });
     res.status(200).send({ roles });
   } catch (err) {
     res.sendStatus(400);
@@ -56,7 +61,12 @@ const getRoleById = async (req, res) => {
   }
 
   try {
-    const role = await Role.findByPk(id);
+    const role = await Role.findByPk(id, {
+      include: [{
+        model: Employee,
+        as: 'employee',
+      }],
+    });
 
     if (!role) {
       return res.sendStatus(404);

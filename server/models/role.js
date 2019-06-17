@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     Role.belongsTo(models.Employee, {
       foreignKey: 'employeeId',
       onDelete: 'CASCADE',
+      as: 'employee',
     });
   };
   return Role;

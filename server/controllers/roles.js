@@ -1,5 +1,6 @@
 // Roles Route Handler
 const { Role, Employee } = require('../models');
+const { getNextEmployeeId } = require('./businessLogic');
 
 const create = async (req, res) => {
   const {
@@ -122,10 +123,34 @@ const editRoleById = async (req, res) => {
   }
 };
 
+const rotateRoleById = async (req, res) => {
+  const { id: roleId } = req.params;
+
+  if (!roleId) {
+    return res.sendStatus(403);
+  }
+
+  try {
+    const role = await Role.findByPk(roleId);
+
+    if (!role) {
+      return res.sendStatus(404);
+    }
+
+    const nextEmployeeId = await getNextEmployeeId(role.employeeId);
+    await role.update({ employeeId: nextEmployeeId });
+
+    return res.status(200).send({ role });
+  } catch (err) {
+    return res.sendStatus(400);
+  }
+};
+
 module.exports = {
   create,
   list,
   getRoleById,
   deleteRoleById,
   editRoleById,
+  rotateRoleById,
 };

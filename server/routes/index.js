@@ -1,4 +1,4 @@
-const { employees: employeesContoller } = require('../controllers');
+const { employees: employeesController } = require('../controllers');
 const { roles: rolesController } = require('../controllers');
 
 module.exports = (app) => {
@@ -7,11 +7,11 @@ module.exports = (app) => {
   }));
 
   // Employee Routes
-  app.post('/api/employees', employeesContoller.create);
-  app.get('/api/employees', employeesContoller.list);
-  app.get('/api/employees/:id', employeesContoller.getEmployeeById);
-  app.delete('/api/employees/:id', employeesContoller.deleteEmployeeById);
-  app.put('/api/employees/:id', employeesContoller.editEmployeeById);
+  app.post('/api/employees', employeesController.create);
+  app.get('/api/employees', employeesController.list);
+  app.get('/api/employees/:id', employeesController.getEmployeeById);
+  app.delete('/api/employees/:id', employeesController.deleteEmployeeById);
+  app.put('/api/employees/:id', employeesController.editEmployeeById);
 
   // Role Routes
   app.post('/api/roles', rolesController.create);
